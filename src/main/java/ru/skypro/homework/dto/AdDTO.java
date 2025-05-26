@@ -4,7 +4,7 @@ import lombok.Data;
 
 // Основная информация об объявлении
 @Data
-public class Ad {
+public class AdDTO {
 
     private Integer author;  // ID автора
     private String image;    // Ссылка на картинку
