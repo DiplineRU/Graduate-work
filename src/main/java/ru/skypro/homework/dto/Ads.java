@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 public class Ads {
     private Integer count;       // Общее количество объявлений
-    private List<Ad> results;    // Список объявлений
+    private List<AdDTO> results;    // Список объявлений
 
 }
