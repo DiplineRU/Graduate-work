@@ -50,7 +50,7 @@ public class AdsController {
             ),
             responses = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDTO.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -142,7 +142,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDTO.class
                     )
             )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
@@ -350,7 +350,7 @@ public class AdsController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(
-                                    implementation = Comment.class
+                                    implementation = CommentDTO.class
                             )
                     )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),

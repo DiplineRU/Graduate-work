@@ -4,7 +4,7 @@ import lombok.Data;
 
 // Информация о пользователе
 @Data
-public class User {
+public class UserDTO {
     private Integer id;
     private String email;
     private String firstName;

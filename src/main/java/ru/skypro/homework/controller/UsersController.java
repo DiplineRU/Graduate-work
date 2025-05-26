@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.UserDTO;
 import java.io.IOException;
 
 @Slf4j
@@ -50,7 +50,7 @@ public class UsersController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = User.class
+                            implementation = UserDTO.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -58,8 +58,8 @@ public class UsersController {
 
     )
     @GetMapping("/me")
-    public ResponseEntity<User> getUser() {
-        return ResponseEntity.ok(new User());
+    public ResponseEntity<UserDTO> getUser() {
+        return ResponseEntity.ok(new UserDTO());
     }
 
     @Operation(
