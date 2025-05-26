@@ -2,7 +2,7 @@ package ru.skypro.homework.dto;
 
 import lombok.Data;
 
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Size;
 
 // Обновление пароля пользователя
 @Data

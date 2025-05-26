@@ -2,7 +2,7 @@ package ru.skypro.homework.dto;
 
 import lombok.Data;
 
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Size;
 
 // Создание или обновление комментария
 @Data
