@@ -2,14 +2,15 @@ package ru.skypro.homework.dto;
 
 import lombok.Data;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+
 
 // Создание или обновление объявления
 @Data
 public class CreateOrUpdateAd {
-    @Size (min = 4, max = 32)
+    @Size(min = 4, max = 32)
     private String title;
 
     @Min(0)

@@ -2,8 +2,9 @@ package ru.skypro.homework.dto;
 
 import lombok.Data;
 
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 
 // Регистрация нового пользователя
 @Data
