@@ -1,8 +1,9 @@
-/*
 package ru.skypro.homework.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface UserRepository extends JpaRepository<UserDTO,Long> {
+import org.springframework.stereotype.Repository;
+import ru.skypro.homework.model.User;
+@Repository
+public interface UserRepository extends JpaRepository<User,Long> {
+    boolean existsByEmail(String email);
 }
-*/
