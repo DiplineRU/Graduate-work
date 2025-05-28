@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 public class Comments {
     private Integer count;            // Общее количество комментариев
-    private List<CommentDTO> results;    // Список комментариев
+    private List<CommentDto> results;    // Список комментариев
 
 }
