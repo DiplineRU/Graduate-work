@@ -8,6 +8,7 @@ CREATE TABLE if NOT EXISTS users
     first_name CHARACTER VARYING(255) not null,
     last_name  CHARACTER VARYING(255) not null,
     phone      CHARACTER VARYING(255) not null,
+    email      CHARACTER VARYING(255) not null,
     role       CHARACTER VARYING(255) not null,
     image      CHARACTER VARYING(255)
 );
