@@ -23,4 +23,6 @@ public interface AdRepository extends JpaRepository<Ad, Long> {
     @Modifying
     @Query("UPDATE Ad a SET a.image = :image WHERE a.id = :id")
     void updateImage(@Param("id") Integer id, @Param("image") String image);
+
+    Optional<Ad> findById(Integer adId);
 }

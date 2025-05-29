@@ -1,6 +1,5 @@
 package ru.skypro.homework.model;
 
-import ru.skypro.homework.dto.Role;
 import lombok.*;
 import javax.persistence.*;
 import java.util.List;

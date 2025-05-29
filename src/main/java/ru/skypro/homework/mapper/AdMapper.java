@@ -10,7 +10,7 @@ public interface AdMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "image", expression = "java(createAdDto.getImage() != null ? \"ads/\" + System.currentTimeMillis() + \"_\" + createAdDto.getImage().getOriginalFilename() : null)")
+    @Mapping(target = "image", source = "imageFile.originalFilename")
     Ad toEntity(CreateOrUpdateAd createAdDto);
 
     @Mapping(target = "author", source = "user.id")

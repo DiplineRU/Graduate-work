@@ -9,7 +9,7 @@ public class CommentDto {
     private String authorImage;     // Ссылка на аватар
     private String authorFirstName; // Имя автора
     private Long createdAt;         // Дата создания (timestamp)
-    private Integer pk;             // ID комментария
+    private Integer id;             // ID комментария
     private String text;            // Текст комментария
 
 }

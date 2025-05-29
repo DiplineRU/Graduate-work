@@ -6,6 +6,7 @@ import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import ru.skypro.homework.model.Role;
 
 @Mapper (componentModel = "spring")
 public interface UserMapper {
@@ -17,7 +18,7 @@ public interface UserMapper {
     @Mapping(target = "lastName", source = "lastName")
     @Mapping(target = "phone", source = "phone")
     @Mapping(target = "email", source = "email")
-    @Mapping(target = "role", expression = "java(register.getRole() != null ? register.getRole() : Role.USER)")
+    @Mapping(target = "role", expression = "java(register.getRole() != null ? register.getRole() : ru.skypro.homework.model.Role.USER)")
     @Mapping(target = "image", ignore = true)
     @Mapping(target = "ads", ignore = true)
     @Mapping(target = "comments", ignore = true)
