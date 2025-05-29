@@ -3,7 +3,6 @@ package ru.skypro.homework.model;
 import ru.skypro.homework.dto.Role;
 import lombok.*;
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,9 +20,9 @@ public class User {
     private String username;
     @Column(name = "password", nullable = false)
     private String password;
-    @Column(name = "firstname", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
-    @Column(name = "lastname", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
     @Column(name = "phone", nullable = false)
     private String phone;
