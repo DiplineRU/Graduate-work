@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 
+import java.security.Principal;
+
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class AdsController {
 
+/*    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AdDto> addAd(
+            @RequestPart CreateOrUpdateAd properties,
+            @RequestPart MultipartFile imageFile, // Получаем файл отдельно
+            Principal principal) {
 
+        properties.setImageFile(imageFile); // Устанавливаем файл в DTO
+        AdDto createdAd = adService.createAd(properties, principal.getName());
+        return ResponseEntity.ok(createdAd);
+    }*/
     @Operation(
             tags = "Объявления",
             summary = "Получение всех объявлений",
@@ -28,7 +40,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ads.class
+                            implementation = AdsDto.class
                     )
             ))
             }
@@ -50,7 +62,7 @@ public class AdsController {
             ),
             responses = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDto.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -142,7 +154,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDto.class
                     )
             )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
@@ -162,7 +174,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ads.class
+                            implementation = AdsDto.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -350,7 +362,7 @@ public class AdsController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(
-                                    implementation = Comment.class
+                                    implementation = CommentDto.class
                             )
                     )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
