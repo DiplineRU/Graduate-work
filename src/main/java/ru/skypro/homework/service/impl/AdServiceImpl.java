@@ -88,7 +88,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public Ad getAdEntity(Integer adId) {
-        return adRepository.findById(adId)
+        return adRepository.findById(Long.valueOf(adId))
                 .orElseThrow(() -> new RuntimeException("Ad not found"));
     }
 

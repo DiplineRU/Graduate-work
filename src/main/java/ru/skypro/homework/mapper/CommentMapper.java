@@ -6,23 +6,44 @@ import org.mapstruct.MappingTarget;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.model.Comment;
 
+import java.time.Instant;
+
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "ad", ignore = true)
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    Comment toEntity(CommentDto commentDto);
+    @Mapping(target = "id", ignore = true) // Игнорируем, так как ID генерируется БД
+    @Mapping(target = "authorImage", source = "dto.authorImage")
+    @Mapping(target = "authorFirstName", source = "dto.authorFirstName")
+    @Mapping(target = "createdAt", expression = "java(convertLongToInstant(dto.getCreatedAt()))")
+    @Mapping(target = "text", source = "dto.text")
+    @Mapping(target = "user", ignore = true) // Устанавливается отдельно в сервисе
+    @Mapping(target = "ad", ignore = true) // Устанавливается отдельно в сервисе
+    Comment toEntity(CommentDto dto);
 
-    @Mapping(target = "author", source = "user.id")
-    @Mapping(target = "authorFirstName", source = "user.firstName")
-    @Mapping(target = "authorImage", source = "user.image")
+    @Mapping(target = "author", expression = "java(comment.getUser() != null ? comment.getUser().getId() : null)")
+    @Mapping(target = "authorImage", source = "comment.authorImage")
+    @Mapping(target = "authorFirstName", source = "comment.authorFirstName")
+    @Mapping(target = "createdAt", expression = "java(convertInstantToLong(comment.getCreatedAt()))")
+    @Mapping(target = "id", source = "comment.id")
+    @Mapping(target = "text", source = "comment.text")
     CommentDto toDto(Comment comment);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "ad", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    void updateCommentFromDto(CommentDto dto, @MappingTarget Comment comment);
+    default Instant convertLongToInstant(Long timestamp) {
+        return timestamp != null ?
+                Instant.ofEpochMilli(timestamp) :
+                Instant.now();
+    }
 
+    default Long convertInstantToLong(Instant instant) {
+        return instant != null ?
+                instant.toEpochMilli() :
+                null;
+    }
+    @Mapping(target = "authorImage", source = "dto.authorImage")
+    @Mapping(target = "authorFirstName", source = "dto.authorFirstName")
+    @Mapping(target = "createdAt", expression = "java(convertLongToInstant(dto.getCreatedAt()))")
+    @Mapping(target = "text", source = "dto.text")
+    @Mapping(target = "id", ignore = true)         // Игнорим ID
+    @Mapping(target = "user", ignore = true)       // Игнорим пользователя
+    @Mapping(target = "ad", ignore = true)         // Игнорим объявление
+    void updateCommentFromDto(CommentDto dto, @MappingTarget Comment comment);
 }
