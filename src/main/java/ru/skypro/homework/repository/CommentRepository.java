@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.skypro.homework.model.Comment;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -14,4 +15,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c WHERE c.ad.id = :adId")
     List<Comment> findAllByAdId(@Param("adId") Integer adId);
 
+    Optional<Comment> findById(Integer id);
 }
