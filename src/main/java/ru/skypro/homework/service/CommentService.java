@@ -6,8 +6,12 @@ import java.util.List;
 
 public interface CommentService {
 
-    CommentDto addComment(Long adId, CommentDto commentDto, Long userId);
-    void deleteComment(Long commentId);
-    List<CommentDto> getCommentsByAdId(Long adId);
 
+    CommentDto addComment(Integer adId, CommentDto commentDto, String username);
+
+    List<CommentDto> getCommentsByAdId(Integer adId);
+
+    CommentDto updateComment(Integer adId, Integer commentId, CommentDto createCommentDto, String username);
+
+    void deleteComment(Integer adId, Integer commentId, String username);
 }

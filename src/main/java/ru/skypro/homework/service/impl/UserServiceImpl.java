@@ -60,4 +60,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.userToUserDto(user);
     }
+    @Override
+    public User getUser(String username) {
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @Override
+    public User findByAllUser() {
+        return null;
+    }
 }
