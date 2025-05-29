@@ -9,14 +9,35 @@ import org.mapstruct.Mapping;
 
 @Mapper (componentModel = "spring")
 public interface UserMapper {
-    UserDto toDto(User user);
 
-    // Маппинг RegisterReq -> User (с установкой роли по умолчанию)
-    @Mapping(target = "role", constant = "USER") // role = "USER" (если Role — это enum)
-    @Mapping(target = "password", ignore = true)  // Пароль обрабатывается отдельно
-    User toEntity(Register register);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "username", source = "username")
+    @Mapping(target = "password", source = "password")
+    @Mapping(target = "firstName", source = "firstName")
+    @Mapping(target = "lastName", source = "lastName")
+    @Mapping(target = "phone", source = "phone")
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "role", expression = "java(register.getRole() != null ? register.getRole() : Role.USER)")
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "ads", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    User registerToUser(Register register);
 
-    // Обновление User из UserDto (для PATCH-запросов)
-    @Mapping(target = "id", ignore = true) // ID не обновляем
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "firstName", source = "firstName")
+    @Mapping(target = "lastName", source = "lastName")
+    @Mapping(target = "phone", source = "phone")
+    @Mapping(target = "role", source = "role")
+    @Mapping(target = "image", source = "image")
+    UserDto userToUserDto(User user);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "username", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "ads", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     void updateUserFromDto(UserDto userDto, @MappingTarget User user);
 }

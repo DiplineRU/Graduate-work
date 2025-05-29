@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import org.springframework.stereotype.Service;
+import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.model.User;
@@ -21,14 +22,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto registerUser(UserDto userDto) {
-        if (userRepository.existsByEmail(userDto.getEmail())) {
+    public UserDto registerUser(Register register) {
+        if (userRepository.existsByEmail(register.getEmail())) {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
 
-        User user = userMapper.toEntity(userDto);
+        User user = userMapper.registerToUser(register);
         User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+        return userMapper.userToUserDto(savedUser);
     }
 
     @Override
@@ -36,9 +37,9 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        userMapper.updateFromDto(userDto, user); // MapStruct для обновления полей
+        userMapper.updateUserFromDto(userDto, user); // MapStruct для обновления полей
         User updatedUser = userRepository.save(user);
-        return userMapper.toDto(updatedUser);
+        return userMapper.userToUserDto(updatedUser);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(userMapper::toDto)
+                .map(userMapper::userToUserDto)
                 .toList();
     }
 
@@ -57,6 +58,6 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toDto(user);
+        return userMapper.userToUserDto(user);
     }
 }
