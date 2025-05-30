@@ -1,5 +1,8 @@
 // Запуск FrontEnd в Docker
-docker run -p 3000:3000 --rm ghcr.io/dmitry-bizin/front-react-avito:v1.21
+docker run -p 80:80 --rm ghcr.io/dmitry-bizin/front-react-avito:1.22-server-port-8888
+
+// Запуск FrontEnd в браузере
+localhost:80/
 
 // Используемый порт
 server.port=8888
