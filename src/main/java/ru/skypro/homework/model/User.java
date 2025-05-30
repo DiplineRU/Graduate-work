@@ -1,6 +1,7 @@
 package ru.skypro.homework.model;
 
 import lombok.*;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -32,6 +33,8 @@ public class User {
     private String image;
     @Column(name = "email")
     private String email;
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true; // Добавить это поле
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ad> ads;
