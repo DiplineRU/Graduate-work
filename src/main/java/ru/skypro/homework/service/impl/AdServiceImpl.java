@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
@@ -11,12 +12,16 @@ import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.ImageService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Service
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
@@ -24,17 +29,18 @@ public class AdServiceImpl implements AdService {
     private final AdRepository adRepository;
     private final AdMapper adMapper;
     private final UserServiceImpl userService;
+    private final ImageService imageService;
     private final String IMAGE_DIR = "src/main/resources/images/ads/";
 
-    @Override
-    public AdDto createAd(CreateOrUpdateAd CreateOrUpdateAd, MultipartFile image, String username) throws IOException {
-        User user = userService.getUser(username);
 
-        Ad ad = adMapper.toEntity(CreateOrUpdateAd);
+    @Override
+    public AdDto createAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile image, String username) throws IOException {
+        User user = userService.getUser(username);
+        Ad ad = adMapper.toEntity(createOrUpdateAd);
         ad.setUser(user);
 
         if (image != null && !image.isEmpty()) {
-            String fileName = saveImage(image);
+            String fileName = imageService.saveImage(image);
             ad.setImage(fileName);
         }
 
@@ -57,15 +63,29 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN') or @adService.isAuthor(authentication.name, #adId)")
     public void deleteAd(Integer adId, String username) {
-        Ad ad = getAdEntity(adId);
-        validateAdOwnership(ad, username);
+        // Получаем объявление по ID
+        Ad ad = adRepository.findById(adId)
+                .orElseThrow(() -> new RuntimeException("Ad not found with id: " + adId));
 
-        if (ad.getImage() != null) {
-            deleteImage(ad.getImage());
+        // Проверяем права доступа
+        if (!ad.getUser().getEmail().equals(username)) {
+            throw new RuntimeException("You can only delete your own ads");
         }
 
-        adRepository.delete(ad);
+        // Удаляем связанное изображение
+        if (ad.getImage() != null) {
+            try {
+                Path imagePath = Paths.get(IMAGE_DIR + ad.getImage());
+                Files.deleteIfExists(imagePath);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to delete image file", e);
+            }
+        }
+
+        // Удаляем само объявление
+        adRepository.deleteById(Long.valueOf(adId));
     }
 
     @Override
@@ -113,5 +133,9 @@ public class AdServiceImpl implements AdService {
         if (!ad.getUser().getEmail().equals(username)) {
             throw new RuntimeException("You can only modify your own ads");
         }
+    }
+    public boolean isAuthor(String username, Integer adId) {
+        Ad ad = adRepository.findById(adId).orElseThrow();
+        return ad.getUser().getEmail().equals(username);
     }
 }

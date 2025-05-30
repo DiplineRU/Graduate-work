@@ -41,4 +41,6 @@ public interface UserMapper {
     @Mapping(target = "ads", ignore = true)
     @Mapping(target = "comments", ignore = true)
     void updateUserFromDto(UserDto userDto, @MappingTarget User user);
+    User userDtoToUser(UserDto userDto);
+
 }

@@ -8,42 +8,30 @@ import ru.skypro.homework.model.Comment;
 
 import java.time.Instant;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = Instant.class)
 public interface CommentMapper {
-    @Mapping(target = "id", ignore = true) // Игнорируем, так как ID генерируется БД
-    @Mapping(target = "authorImage", source = "dto.authorImage")
-    @Mapping(target = "authorFirstName", source = "dto.authorFirstName")
-    @Mapping(target = "createdAt", expression = "java(convertLongToInstant(dto.getCreatedAt()))")
-    @Mapping(target = "text", source = "dto.text")
-    @Mapping(target = "user", ignore = true) // Устанавливается отдельно в сервисе
-    @Mapping(target = "ad", ignore = true) // Устанавливается отдельно в сервисе
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", expression = "java(Instant.now())")
+    @Mapping(target = "text", source = "text")
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "ad", ignore = true)
+    @Mapping(target = "authorImage", ignore = true)
+    @Mapping(target = "authorFirstName", ignore = true)
     Comment toEntity(CommentDto dto);
 
-    @Mapping(target = "author", expression = "java(comment.getUser() != null ? comment.getUser().getId() : null)")
-    @Mapping(target = "authorImage", source = "comment.authorImage")
-    @Mapping(target = "authorFirstName", source = "comment.authorFirstName")
-    @Mapping(target = "createdAt", expression = "java(convertInstantToLong(comment.getCreatedAt()))")
-    @Mapping(target = "id", source = "comment.id")
-    @Mapping(target = "text", source = "comment.text")
+    @Mapping(target = "author", source = "user.id")
+    @Mapping(target = "authorImage", source = "user.image")
+    @Mapping(target = "authorFirstName", source = "user.firstName")
+    @Mapping(target = "createdAt", expression = "java(comment.getCreatedAt().toEpochMilli())")
+    @Mapping(target = "text", source = "text")
     CommentDto toDto(Comment comment);
 
-    default Instant convertLongToInstant(Long timestamp) {
-        return timestamp != null ?
-                Instant.ofEpochMilli(timestamp) :
-                Instant.now();
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "ad", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "authorImage", ignore = true)
+    @Mapping(target = "authorFirstName", ignore = true)
+    void updateFromDto(CommentDto dto, @MappingTarget Comment entity);
 
-    default Long convertInstantToLong(Instant instant) {
-        return instant != null ?
-                instant.toEpochMilli() :
-                null;
-    }
-    @Mapping(target = "authorImage", source = "dto.authorImage")
-    @Mapping(target = "authorFirstName", source = "dto.authorFirstName")
-    @Mapping(target = "createdAt", expression = "java(convertLongToInstant(dto.getCreatedAt()))")
-    @Mapping(target = "text", source = "dto.text")
-    @Mapping(target = "id", ignore = true)         // Игнорим ID
-    @Mapping(target = "user", ignore = true)       // Игнорим пользователя
-    @Mapping(target = "ad", ignore = true)         // Игнорим объявление
-    void updateCommentFromDto(CommentDto dto, @MappingTarget Comment comment);
 }

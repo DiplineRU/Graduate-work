@@ -1,5 +1,6 @@
 package ru.skypro.homework.service;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
@@ -17,6 +18,7 @@ public interface AdService {
 
     AdDto getAdById(Integer adId);
 
+    @PreAuthorize("hasRole('ADMIN') or @adService.isAuthor(authentication.name, #id)")
     void deleteAd(Integer adId, String username);
 
     AdDto updateAd(Integer adId, CreateOrUpdateAd CreateOrUpdateAd, String username);
