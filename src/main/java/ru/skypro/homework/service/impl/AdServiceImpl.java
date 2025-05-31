@@ -112,22 +112,6 @@ public class AdServiceImpl implements AdService {
                 .orElseThrow(() -> new RuntimeException("Ad not found"));
     }
 
-    private String saveImage(MultipartFile image) throws IOException {
-        String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-        Path path = Paths.get(IMAGE_DIR + fileName);
-        Files.createDirectories(path.getParent());
-        Files.write(path, image.getBytes());
-        return fileName;
-    }
-
-    private void deleteImage(String imageName) {
-        try {
-            Path path = Paths.get(IMAGE_DIR + imageName);
-            Files.deleteIfExists(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete image", e);
-        }
-    }
 
     private void validateAdOwnership(Ad ad, String username) {
         if (!ad.getUser().getEmail().equals(username)) {
