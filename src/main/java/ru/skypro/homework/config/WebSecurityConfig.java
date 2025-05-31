@@ -21,8 +21,8 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsManager userDetailsManager(DataSource dataSource, PasswordEncoder passwordEncoder) {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-        manager.setUsersByUsernameQuery("SELECT email, password, true FROM users WHERE email = ?");
-        manager.setAuthoritiesByUsernameQuery("SELECT email, role FROM users WHERE email = ?");
+        manager.setUsersByUsernameQuery("SELECT email AS username, password, enabled FROM users WHERE email = ?");
+        manager.setAuthoritiesByUsernameQuery("SELECT email AS username, role FROM users WHERE email = ?");
         return manager;
     }
 
