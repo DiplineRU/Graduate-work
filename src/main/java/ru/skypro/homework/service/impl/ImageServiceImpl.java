@@ -1,6 +1,8 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.service.ImageService;
 
@@ -8,7 +10,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+@Service
+@RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
+
+
     @Value("${image.upload.directory}")
     private String uploadDirectory;
 

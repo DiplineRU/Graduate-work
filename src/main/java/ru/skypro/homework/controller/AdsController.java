@@ -33,10 +33,6 @@ public class AdsController {
     private final CommentService commentService;
 
 
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<List<CommentDto>> getComments(@PathVariable Integer id) {
-        return ResponseEntity.ok(commentService.getCommentsByAdId(id));
-    }
     @Operation(
             tags = "Объявления",
             summary = "Получение всех объявлений",
