@@ -14,25 +14,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.CommentService;
 
+import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
+@RequiredArgsConstructor
+
 public class AdsController {
 
-/*    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AdDto> addAd(
-            @RequestPart CreateOrUpdateAd properties,
-            @RequestPart MultipartFile imageFile, // Получаем файл отдельно
-            Principal principal) {
+    private final AdService adService;
+    private final CommentService commentService;
 
-        properties.setImageFile(imageFile); // Устанавливаем файл в DTO
-        AdDto createdAd = adService.createAd(properties, principal.getName());
-        return ResponseEntity.ok(createdAd);
-    }*/
+
     @Operation(
             tags = "Объявления",
             summary = "Получение всех объявлений",
@@ -69,10 +69,14 @@ public class AdsController {
             }
 
     )
-    //TODO разобраться почему ответ 415 приходит и поправить
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addAd(@RequestPart MultipartFile image, @RequestPart CreateOrUpdateAd properties) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<AdDto> addAd(
+            @RequestPart CreateOrUpdateAd properties,
+            @RequestPart MultipartFile image,
+            Principal principal) throws IOException {
+
+        AdDto createdAd = adService.createAd(properties, image, principal.getName());
+        return ResponseEntity.ok(createdAd);
     }
 
     @Operation(
