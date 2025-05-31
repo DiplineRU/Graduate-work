@@ -2,6 +2,8 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CommentDto;
@@ -12,6 +14,7 @@ import ru.skypro.homework.model.Comment;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.CommentRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.CommentService;
 
 import java.time.Instant;
@@ -27,12 +30,19 @@ public class CommentServiceImpl implements CommentService {
     private final UserServiceImpl userService;
     private final AdRepository adRepository;
     private final AdMapper adMapper;
+    private UserRepository userRepository;
 
     @Override
-    public CommentDto addComment(Integer adId, CommentDto commentDto, String username) {
-        Ad ad = adService.getAdEntity(adId);
-        User user = userService.getUser(username);
+    public CommentDto addComment(Integer adId, CommentDto commentDto) {
+        // 1. Получаем текущего пользователя из SecurityContext
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        // 2. Получаем объявление
+        Ad ad = adService.getAdEntity(adId);
+
+        // 3. Создаем и сохраняем комментарий
         Comment comment = commentMapper.toEntity(commentDto);
         comment.setUser(user);
         comment.setAd(ad);
@@ -40,8 +50,8 @@ public class CommentServiceImpl implements CommentService {
         comment.setAuthorImage(user.getImage());
         comment.setCreatedAt(Instant.now());
 
-        Comment saved = commentRepository.save(comment);
-        return commentMapper.toDto(saved);
+        Comment savedComment = commentRepository.save(comment);
+        return commentMapper.toDto(savedComment);
     }
 
     @Override

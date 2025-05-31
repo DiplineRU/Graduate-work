@@ -88,6 +88,7 @@ public class AdServiceImpl implements AdService {
         adRepository.deleteById(Long.valueOf(adId));
     }
 
+
     @Override
     public AdDto updateAd(Integer adId, CreateOrUpdateAd CreateOrUpdateAd, String username) {
         Ad ad = getAdEntity(adId);
