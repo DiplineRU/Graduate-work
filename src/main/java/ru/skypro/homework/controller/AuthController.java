@@ -23,7 +23,7 @@ import ru.skypro.homework.service.AuthService;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private  final AuthService authService;
 
     @Operation(
             tags = "Авторизация",

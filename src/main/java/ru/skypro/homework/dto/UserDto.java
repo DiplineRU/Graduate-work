@@ -1,10 +1,11 @@
 package ru.skypro.homework.dto;
 
 import lombok.Data;
+import ru.skypro.homework.model.Role;
 
 // Информация о пользователе
 @Data
-public class User {
+public class UserDto {
     private Integer id;
     private String email;
     private String firstName;

@@ -7,18 +7,30 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.CommentService;
+
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
+@RequiredArgsConstructor
+
 public class AdsController {
+
+    private final AdService adService;
+    private final CommentService commentService;
 
 
     @Operation(
@@ -28,7 +40,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ads.class
+                            implementation = AdsDto.class
                     )
             ))
             }
@@ -50,17 +62,21 @@ public class AdsController {
             ),
             responses = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDto.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
             }
 
     )
-    //TODO разобраться почему ответ 415 приходит и поправить
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addAd(@RequestPart MultipartFile image, @RequestPart CreateOrUpdateAd properties) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<AdDto> addAd(
+            @RequestPart CreateOrUpdateAd properties,
+            @RequestPart MultipartFile image,
+            Principal principal) throws IOException {
+
+        AdDto createdAd = adService.createAd(properties, image, principal.getName());
+        return ResponseEntity.ok(createdAd);
     }
 
     @Operation(
@@ -142,7 +158,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDto.class
                     )
             )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
@@ -162,7 +178,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ads.class
+                            implementation = AdsDto.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -350,7 +366,7 @@ public class AdsController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(
-                                    implementation = Comment.class
+                                    implementation = CommentDto.class
                             )
                     )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
