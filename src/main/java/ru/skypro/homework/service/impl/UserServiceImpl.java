@@ -1,73 +1,106 @@
 package ru.skypro.homework.service.impl;
 
+import org.slf4j.Logger;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.skypro.homework.dto.Register;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.auth.MyUserDetailsService;
+import ru.skypro.homework.check.CheckService;
+import ru.skypro.homework.config.WebSecurityConfig;
+import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.entity.AvatarEntity;
+import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
-import ru.skypro.homework.model.User;
+import ru.skypro.homework.repository.AvatarRepository;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.AvatarService;
 import ru.skypro.homework.service.UserService;
 
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.UUID;
 
+import static java.nio.file.Paths.get;
+
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final MyUserDetailsService myUserDetailsService;
+    private Logger log;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository,
+                           UserMapper userMapper,
+                           MyUserDetailsService myUserDetailsService
+    ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.myUserDetailsService = myUserDetailsService;
     }
 
+    /**
+     * Изменение пароля у пользователя
+     */
     @Override
-    public UserDto registerUser(Register register) {
-        if (userRepository.existsByEmail(register.getEmail())) {
-            throw new RuntimeException("Пользователь с таким email уже существует");
-        }
-
-        User user = userMapper.registerToUser(register);
-        User savedUser = userRepository.save(user);
-        return userMapper.userToUserDto(savedUser);
+    public boolean setNewPassword(NewPasswordDto newPassword) {
+        log.info("The setNewPassword method of setNewPassword is called");
+        myUserDetailsService.changePassword(newPassword.getCurrentPassword(), newPassword.getNewPassword());
+        return true;
     }
 
+    /**
+     * Информация о пользователе
+     */
     @Override
-    public UserDto updateUser(Long userId, UserDto userDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        userMapper.updateUserFromDto(userDto, user); // MapStruct для обновления полей
-        User updatedUser = userRepository.save(user);
-        return userMapper.userToUserDto(updatedUser);
+    public UserDto getUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName = ((UserDetails) principal).getUsername();
+        return userMapper.toUserDto((userRepository.findByEmail(userName).orElseThrow(() -> {
+            log.info("Пользователь не найден", UserNotFoundException.class);
+            return new UserNotFoundException("User not found");
+        })));
     }
 
+    /**
+     * Изменение данных пользователя
+     */
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
-    }
-
-    @Override
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::userToUserDto)
-                .toList();
-    }
-
-    @Override
-    public UserDto getUserById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.userToUserDto(user);
-    }
-    @Override
-    public User getUser(String username) {
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    @Override
-    public User findByAllUser() {
-        return null;
+    public UpdateUserDto updateUser(UpdateUserDto userPatch) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName = ((UserDetails) principal).getUsername();
+        UserEntity user = userRepository.findByEmail(userName).orElseThrow(() -> {
+            log.info("Пользователь не найден", UserNotFoundException.class);
+            return new UserNotFoundException("User not found");
+        });
+        user.setFirstName(userPatch.getFirstName());
+        user.setLastName(userPatch.getLastName());
+        user.setPhone(userPatch.getPhone());
+        userRepository.save(user);
+        return userPatch;
     }
 }

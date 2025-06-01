@@ -1,32 +1,49 @@
 package ru.skypro.homework.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Mappings;
+import ru.skypro.homework.constants.Constants;
 import ru.skypro.homework.dto.AdDto;
-import ru.skypro.homework.dto.CreateOrUpdateAd;
-import ru.skypro.homework.model.Ad;
+import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.entity.AdEntity;
+import ru.skypro.homework.entity.AvatarEntity;
+import ru.skypro.homework.entity.ImageAdEntity;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+import java.util.List;
+
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AdMapper {
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "image", ignore = true)
-    Ad toEntity(CreateOrUpdateAd dto);
 
-    @Mapping(target = "author", source = "user.id")
-    @Mapping(target = "authorFirstName", source = "user.firstName")
-    @Mapping(target = "authorLastName", source = "user.lastName")
-    @Mapping(target = "phone", source = "user.phone")
-    @Mapping(target = "image", expression = "java(ad.getImage() != null ? \"/images/\" + ad.getImage() : null)")
-    AdDto toDto(Ad ad);
+    @Mappings({
+            @Mapping(target = "author", ignore = true),
+            @Mapping(target = "id", source = "pk"),
+            @Mapping(target = "image", ignore = true)
+    })
+    AdEntity toAd(AdDto adDTO);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "comments", ignore = true)
-    @Mapping(target = "image", ignore = true)
-    void updateAdFromDto(CreateOrUpdateAd dto, @MappingTarget Ad ad);
+    @Mappings({
+            @Mapping(target = "author", source = "author.id"),
+            @Mapping(target = "pk", source = "id"),
+            @Mapping(expression = "java(buildImageUrl(ad.getId()))", target = "image")
 
-    @Mapping(target = "author", source = "user.id")
-    AdDto adToAdDto(Ad ad);
+    })
+    AdDto toAdDto(AdEntity ad);
 
+    List<AdDto> toListAdDTO(List<AdEntity> ads);
+
+    @Mappings({
+            @Mapping(target = "pk", source = "id"),
+            @Mapping(target = "authorFirstName", source = "author.firstName"),
+            @Mapping(target = "authorLastName", source = "author.lastName"),
+            @Mapping(target = "phone", source = "author.phone"),
+            @Mapping(target = "email", source = "author.email"),
+            @Mapping(expression = "java(buildImageUrl(ad.getId()))", target = "image")
+    })
+    ExtendedAdDto adToExtendedAd(AdEntity ad);
+
+    default String buildImageUrl(Integer pk) {
+        return Constants.PATH_IMAGE_ADS + pk;
+    }
 }

@@ -1,18 +1,16 @@
 package ru.skypro.homework.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
-// Список объявлений с пагинацией
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdsDto {
-    private Integer count;       // Общее количество объявлений
-    private List<AdDto> results;    // Список объявлений
-
-    public AdsDto(Integer count, List<AdDto> results) {
-        this.count = count;
-        this.results = results;
-    }
-
+    @Schema(description = "общее количество объявлений")
+    private Integer count;
+    private List<AdDto> results;
 }

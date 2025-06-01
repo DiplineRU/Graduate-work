@@ -1,46 +1,36 @@
 package ru.skypro.homework.mapper;
 
-import org.mapstruct.MappingTarget;
-import ru.skypro.homework.dto.Register;
-import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.skypro.homework.model.Role;
+import org.mapstruct.MappingConstants;
+import ru.skypro.homework.constants.Constants;
+import ru.skypro.homework.dto.RegisterDto;
+import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.entity.AvatarEntity;
+import ru.skypro.homework.entity.UserEntity;
+import ru.skypro.homework.exceptions.AvatarNotFoundException;
 
-@Mapper (componentModel = "spring")
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "username", source = "username")
-    @Mapping(target = "password", source = "password")
-    @Mapping(target = "firstName", source = "firstName")
-    @Mapping(target = "lastName", source = "lastName")
-    @Mapping(target = "phone", source = "phone")
-    @Mapping(target = "email", source = "email")
-    @Mapping(target = "role", expression = "java(register.getRole() != null ? register.getRole() : ru.skypro.homework.model.Role.USER)")
-    @Mapping(target = "image", ignore = true)
-    @Mapping(target = "ads", ignore = true)
-    @Mapping(target = "comments", ignore = true)
-    User registerToUser(Register register);
+    UserEntity toUpdateUser(UpdateUserDto source);
 
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "email", source = "email")
-    @Mapping(target = "firstName", source = "firstName")
-    @Mapping(target = "lastName", source = "lastName")
-    @Mapping(target = "phone", source = "phone")
-    @Mapping(target = "role", source = "role")
-    @Mapping(target = "image", source = "image")
-    UserDto userToUserDto(User user);
+    @Mapping(target = "email", source = "username")
+    UserEntity toUser(RegisterDto source);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "username", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    @Mapping(target = "image", ignore = true)
-    @Mapping(target = "ads", ignore = true)
-    @Mapping(target = "comments", ignore = true)
-    void updateUserFromDto(UserDto userDto, @MappingTarget User user);
-    User userDtoToUser(UserDto userDto);
+    @Mapping(expression = "java(buildImageUrl(userEntity.getAvatar().getId(), userEntity.getAvatar()))", target = "image")
+    @Mapping(source = "role", target = "role")
+    UserDto toUserDto(UserEntity userEntity);
 
+    default String map(AvatarEntity avatar) {
+        return avatar != null ? avatar.getPath() : null;
+    }
+
+    default String buildImageUrl(Long id, AvatarEntity avatar) {
+        if (avatar == null || avatar.getId() == null) {
+            throw new AvatarNotFoundException();
+        }
+        return Constants.PATH_IMAGE + id;
+    }
 }

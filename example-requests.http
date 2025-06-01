@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8888/register
+POST http://localhost:8888/registerDto
 Content-Type: application/json
 
 {

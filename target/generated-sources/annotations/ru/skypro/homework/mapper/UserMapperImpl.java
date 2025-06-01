@@ -2,66 +2,71 @@ package ru.skypro.homework.mapper;
 
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.dto.RegisterDto;
+import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.model.User;
+import ru.skypro.homework.entity.UserEntity;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-30T12:49:12+0300",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.15 (Amazon.com Inc.)"
+    date = "2025-06-01T23:26:23+0400",
+    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.14 (Amazon.com Inc.)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
 
     @Override
-    public User registerToUser(Register register) {
-        if ( register == null ) {
+    public UserEntity toUpdateUser(UpdateUserDto source) {
+        if ( source == null ) {
             return null;
         }
 
-        User.UserBuilder user = User.builder();
+        UserEntity.UserEntityBuilder userEntity = UserEntity.builder();
 
-        user.username( register.getUsername() );
-        user.password( register.getPassword() );
-        user.firstName( register.getFirstName() );
-        user.lastName( register.getLastName() );
-        user.phone( register.getPhone() );
-        user.email( register.getEmail() );
+        userEntity.firstName( source.getFirstName() );
+        userEntity.lastName( source.getLastName() );
+        userEntity.phone( source.getPhone() );
 
-        user.role( register.getRole() != null ? register.getRole() : ru.skypro.homework.model.Role.USER );
-
-        return user.build();
+        return userEntity.build();
     }
 
     @Override
-    public UserDto userToUserDto(User user) {
-        if ( user == null ) {
+    public UserEntity toUser(RegisterDto source) {
+        if ( source == null ) {
+            return null;
+        }
+
+        UserEntity.UserEntityBuilder userEntity = UserEntity.builder();
+
+        userEntity.email( source.getUsername() );
+        userEntity.firstName( source.getFirstName() );
+        userEntity.lastName( source.getLastName() );
+        userEntity.password( source.getPassword() );
+        userEntity.phone( source.getPhone() );
+        userEntity.role( source.getRole() );
+
+        return userEntity.build();
+    }
+
+    @Override
+    public UserDto toUserDto(UserEntity userEntity) {
+        if ( userEntity == null ) {
             return null;
         }
 
         UserDto userDto = new UserDto();
 
-        userDto.setId( user.getId() );
-        userDto.setEmail( user.getEmail() );
-        userDto.setFirstName( user.getFirstName() );
-        userDto.setLastName( user.getLastName() );
-        userDto.setPhone( user.getPhone() );
-        userDto.setRole( user.getRole() );
-        userDto.setImage( user.getImage() );
+        userDto.setRole( userEntity.getRole() );
+        if ( userEntity.getId() != null ) {
+            userDto.setId( userEntity.getId() );
+        }
+        userDto.setEmail( userEntity.getEmail() );
+        userDto.setFirstName( userEntity.getFirstName() );
+        userDto.setLastName( userEntity.getLastName() );
+        userDto.setPhone( userEntity.getPhone() );
+
+        userDto.setImage( buildImageUrl(userEntity.getAvatar().getId(), userEntity.getAvatar()) );
 
         return userDto;
-    }
-
-    @Override
-    public void updateUserFromDto(UserDto userDto, User user) {
-        if ( userDto == null ) {
-            return;
-        }
-
-        user.setFirstName( userDto.getFirstName() );
-        user.setLastName( userDto.getLastName() );
-        user.setPhone( userDto.getPhone() );
-        user.setEmail( userDto.getEmail() );
     }
 }
