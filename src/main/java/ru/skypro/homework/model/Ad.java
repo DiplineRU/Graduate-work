@@ -32,4 +32,6 @@ public class Ad {
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+    @ManyToOne
+    private User author;
 }
