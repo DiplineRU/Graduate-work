@@ -11,6 +11,7 @@ import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
 
@@ -19,8 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +30,14 @@ public class AdServiceImpl implements AdService {
     private final UserServiceImpl userService;
     private final ImageService imageService;
     private final String IMAGE_DIR = "src/main/resources/images/ads/";
+    private UserRepository userRepository;
 
+    @Override
+    public boolean isAdOwner(Long adId, String username) {
+        Ad ad = adRepository.findById(adId).orElseThrow();
+        User user = userRepository.findByEmail(username).orElseThrow();
+        return ad.getAuthor().getId().equals(user.getId());
+    }
 
     @Override
     public AdDto createAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile image, String username) throws IOException {
@@ -66,7 +72,7 @@ public class AdServiceImpl implements AdService {
     @PreAuthorize("hasRole('ADMIN') or @adService.isAuthor(authentication.name, #adId)")
     public void deleteAd(Integer adId, String username) {
         // Получаем объявление по ID
-        Ad ad = adRepository.findById(adId)
+        Ad ad = adRepository.findById(Long.valueOf(adId))
                 .orElseThrow(() -> new RuntimeException("Ad not found with id: " + adId));
 
         // Проверяем права доступа
@@ -120,7 +126,7 @@ public class AdServiceImpl implements AdService {
         }
     }
     public boolean isAuthor(String username, Integer adId) {
-        Ad ad = adRepository.findById(adId).orElseThrow();
+        Ad ad = adRepository.findById(Long.valueOf(adId)).orElseThrow();
         return ad.getUser().getEmail().equals(username);
     }
 }

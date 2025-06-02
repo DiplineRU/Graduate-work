@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -31,6 +32,7 @@ public class AdsController {
 
     private final AdService adService;
     private final CommentService commentService;
+    private AdsController adsService;
 
 
     @Operation(
@@ -60,7 +62,7 @@ public class AdsController {
                             mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
                     }
             ),
-            responses = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(
+            responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     schema = @Schema(
                             implementation = AdDto.class
                     )
@@ -129,10 +131,11 @@ public class AdsController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize("@adsService.isAdOwner(#id, authentication.name) or hasRole('ADMIN')")
     public ResponseEntity<?> removeAd(@PathVariable int id) {
+        adsService.removeAd(id);
         return ResponseEntity.ok().build();
     }
-
     @Operation(
             tags = "Объявления",
             summary = "Обновление информации об объявлении",
@@ -166,10 +169,13 @@ public class AdsController {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
+
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateAds(@PathVariable int id, @RequestBody CreateOrUpdateAd createOrUpdateAd) {
-        return ResponseEntity.ok().build();
+    @PreAuthorize("@adsService.isAdOwner(#id, authentication.name)")
+    public ResponseEntity<?> updateAds(@PathVariable Integer id, @RequestBody CreateOrUpdateAd createOrUpdateAd) {
+        return ResponseEntity.ok(adsService.updateAds(id, createOrUpdateAd));
     }
+
 
     @Operation(
             tags = "Объявления",
@@ -223,7 +229,7 @@ public class AdsController {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    @PatchMapping(value = "/{id}/image" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateImage(@PathVariable int id, @RequestBody MultipartFile image) {
         return ResponseEntity.ok().build();
     }

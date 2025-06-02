@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface AdService {
 
+    boolean isAdOwner(Long adId, String username);
+
     AdDto createAd(CreateOrUpdateAd CreateOrUpdateAd, MultipartFile image, String username) throws IOException;
 
     AdsDto getAllAds();

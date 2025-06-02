@@ -24,6 +24,7 @@ public interface AdMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "image", ignore = true)
+    @Mapping(target = "author", ignore = true) // обрабатывается отдельно
     void updateAdFromDto(CreateOrUpdateAd dto, @MappingTarget Ad ad);
 
     @Mapping(target = "author", source = "user.id")
