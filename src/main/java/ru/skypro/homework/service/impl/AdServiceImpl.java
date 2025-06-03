@@ -38,7 +38,14 @@ public class AdServiceImpl implements AdService {
         User user = userRepository.findByEmail(username).orElseThrow();
         return ad.getAuthor().getId().equals(user.getId());
     }
-
+    /**
+     * Создает новое объявление.
+     *
+     * @param createOrUpdateAd данные объявления
+     * @param image изображение объявления
+     * @return созданное объявление в формате DTO
+     * @throws IOException при ошибках работы с изображением
+     */
     @Override
     public AdDto createAd(CreateOrUpdateAd createOrUpdateAd, MultipartFile image, String username) throws IOException {
         User user = userService.getUser(username);
@@ -53,7 +60,11 @@ public class AdServiceImpl implements AdService {
         Ad savedAd = adRepository.save(ad);
         return adMapper.toDto(savedAd);
     }
-
+    /**
+     * Получает все объявления.
+     *
+     * @return DTO со списком всех объявлений
+     */
     @Override
     public AdsDto getAllAds() {
         List<AdDto> adDtos = adRepository.findAll().stream()

@@ -21,20 +21,36 @@ import ru.skypro.homework.service.CommentService;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+/**
+ * Контроллер для работы с объявлениями.
+ * <p>
+ * Обрабатывает операции:
+ * <ul>
+ *   <li>Получение всех объявлений</li>
+ *   <li>Создание новых объявлений</li>
+ *   <li>Получение информации об объявлении</li>
+ *   <li>Удаление объявлений</li>
+ *   <li>Обновление объявлений</li>
+ *   <li>Работа с изображениями объявлений</li>
+ * </ul>
+ */
 
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 @RequiredArgsConstructor
-
 public class AdsController {
 
     private final AdService adService;
     private final CommentService commentService;
     private AdsController adsService;
 
-
+    /**
+     * Получает все объявления.
+     *
+     * @return список всех объявлений в формате DTO
+     */
     @Operation(
             tags = "Объявления",
             summary = "Получение всех объявлений",
@@ -52,7 +68,14 @@ public class AdsController {
     public ResponseEntity<?> getAllAds() {
         return ResponseEntity.ok().build();
     }
-
+    /**
+     * Создает новое объявление.
+     *
+     * @param properties данные объявления
+     * @param image изображение для объявления
+     * @return созданное объявление
+     * @throws IOException при ошибках работы с файлом изображения
+     */
     @Operation(
             tags = "Объявления",
             summary = "Добавление объявления",

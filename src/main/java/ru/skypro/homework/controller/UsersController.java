@@ -13,13 +13,28 @@ import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.UserDto;
 import java.io.IOException;
-
+/**
+ * Контроллер для работы с пользователями.
+ * <p>
+ * Обрабатывает операции:
+ * <ul>
+ *   <li>Обновление информации о пользователе</li>
+ *   <li>Обновление аватара пользователя</li>
+ *   <li>Получение информации о текущем пользователе</li>
+ *   <li>Обновление пароля</li>
+ * </ul>
+ */
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/users")
 public class UsersController {
-
+    /**
+     * Обновляет информацию о текущем пользователе.
+     *
+     * @param newPassword новые данные пользователя
+     * @return обновленные данные пользователя
+     */
     @Operation(
             tags = "Пользователи",
             summary = "Обновление пароля",

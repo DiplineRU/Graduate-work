@@ -22,6 +22,17 @@ import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+/**
+ * Конфигурация безопасности приложения.
+ * <p>
+ * Настраивает:
+ * <ul>
+ *   <li>Цепочку фильтров безопасности</li>
+ *   <li>Правила доступа к эндпоинтам</li>
+ *   <li>Механизмы аутентификации</li>
+ *   <li>Кодировщик паролей</li>
+ * </ul>
+ */
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -53,6 +64,13 @@ public class WebSecurityConfig {
         return manager;
     }
 
+    /**
+     * Конфигурирует цепочку фильтров безопасности.
+     *
+     * @param http объект конфигурации HTTP безопасности
+     * @return сконфигурированная цепочка фильтров
+     * @throws Exception при ошибках конфигурации
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -78,6 +96,11 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    /**
+     * Предоставляет кодировщик паролей BCrypt.
+     *
+     * @return экземпляр BCryptPasswordEncoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

@@ -4,7 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.*;
 import java.util.List;
-
+/**
+ * Сущность объявления.
+ * <p>
+ * Содержит информацию:
+ * <ul>
+ *   <li>Заголовок и описание объявления</li>
+ *   <li>Цену</li>
+ *   <li>Ссылку на изображение</li>
+ *   <li>Автора объявления</li>
+ *   <li>Комментарии к объявлению</li>
+ * </ul>
+ */
 @Entity
 @Table(name = "ads")
 @Data
