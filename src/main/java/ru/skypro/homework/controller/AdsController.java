@@ -7,20 +7,50 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.CommentService;
+
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+/**
+ * Контроллер для работы с объявлениями.
+ * <p>
+ * Обрабатывает операции:
+ * <ul>
+ *   <li>Получение всех объявлений</li>
+ *   <li>Создание новых объявлений</li>
+ *   <li>Получение информации об объявлении</li>
+ *   <li>Удаление объявлений</li>
+ *   <li>Обновление объявлений</li>
+ *   <li>Работа с изображениями объявлений</li>
+ * </ul>
+ */
 
 @Slf4j
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
+@RequiredArgsConstructor
 public class AdsController {
 
+    private final AdService adService;
+    private final CommentService commentService;
+    private AdsController adsService;
 
+    /**
+     * Получает все объявления.
+     *
+     * @return список всех объявлений в формате DTO
+     */
     @Operation(
             tags = "Объявления",
             summary = "Получение всех объявлений",
@@ -28,7 +58,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ads.class
+                            implementation = AdsDto.class
                     )
             ))
             }
@@ -38,7 +68,14 @@ public class AdsController {
     public ResponseEntity<?> getAllAds() {
         return ResponseEntity.ok().build();
     }
-
+    /**
+     * Создает новое объявление.
+     *
+     * @param properties данные объявления
+     * @param image изображение для объявления
+     * @return созданное объявление
+     * @throws IOException при ошибках работы с файлом изображения
+     */
     @Operation(
             tags = "Объявления",
             summary = "Добавление объявления",
@@ -48,19 +85,23 @@ public class AdsController {
                             mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
                     }
             ),
-            responses = {@ApiResponse(responseCode = "200", description = "OK" , content = @Content(
+            responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDto.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
             }
 
     )
-    //TODO разобраться почему ответ 415 приходит и поправить
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addAd(@RequestPart MultipartFile image, @RequestPart CreateOrUpdateAd properties) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<AdDto> addAd(
+            @RequestPart CreateOrUpdateAd properties,
+            @RequestPart MultipartFile image,
+            Principal principal) throws IOException {
+
+        AdDto createdAd = adService.createAd(properties, image, principal.getName());
+        return ResponseEntity.ok(createdAd);
     }
 
     @Operation(
@@ -113,10 +154,11 @@ public class AdsController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize("@adsService.isAdOwner(#id, authentication.name) or hasRole('ADMIN')")
     public ResponseEntity<?> removeAd(@PathVariable int id) {
+        adsService.removeAd(id);
         return ResponseEntity.ok().build();
     }
-
     @Operation(
             tags = "Объявления",
             summary = "Обновление информации об объявлении",
@@ -142,7 +184,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ad.class
+                            implementation = AdDto.class
                     )
             )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
@@ -150,10 +192,13 @@ public class AdsController {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
+
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateAds(@PathVariable int id, @RequestBody CreateOrUpdateAd createOrUpdateAd) {
-        return ResponseEntity.ok().build();
+    @PreAuthorize("@adsService.isAdOwner(#id, authentication.name)")
+    public ResponseEntity<?> updateAds(@PathVariable Integer id, @RequestBody CreateOrUpdateAd createOrUpdateAd) {
+        return ResponseEntity.ok(adsService.updateAds(id, createOrUpdateAd));
     }
+
 
     @Operation(
             tags = "Объявления",
@@ -162,7 +207,7 @@ public class AdsController {
             responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(
-                            implementation = Ads.class
+                            implementation = AdsDto.class
                     )
             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized")
@@ -207,7 +252,7 @@ public class AdsController {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    @PatchMapping(value = "/{id}/image" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateImage(@PathVariable int id, @RequestBody MultipartFile image) {
         return ResponseEntity.ok().build();
     }
@@ -350,7 +395,7 @@ public class AdsController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(
-                                    implementation = Comment.class
+                                    implementation = CommentDto.class
                             )
                     )),
                     @ApiResponse(responseCode = "403", description = "Forbidden"),
